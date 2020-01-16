@@ -287,7 +287,7 @@ window.onload = function(){
 				this.angleTarget = Math.atan2(targetx-this.x,targety-this.y) - Math.PI/2;	
 			}
 			
-			this.angle += (this.angleTarget - this.angle) * 0.08;
+			this.angle += (this.angleTarget - this.angle);
 
 			this.x += 14 * Math.cos(this.angle);
 			this.y -= 14 * Math.sin(this.angle);
