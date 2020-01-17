@@ -40,24 +40,33 @@ window.onload = function(){
 				
 				switch(this.phase){
 					case 1:
-						pow = new Shooter(1400,300);
+						pow = new Shooter();
+						break;
+					case 2:
+						for(i=0;i<3;i++){
+							pow = new Aimer();
+						}
+						break;
+					case 3:
+						for(i=0;i<3;i++){
+							pow = new Missiler();
+						}
+						break;
 					
 				}
-			}
-			
-			
+			}		
 		}
 	}
 	
-	function Shooter (x,y) {
-		this.x = x;
-		this.y = y;
+	function Shooter () {
+		this.x = 1300;
+		this.y = Math.random() * 500 + 100;
 		this.targetx = 0;
 		this.targety = 0;
 		this.angle = 0;
 		this.distance = 0;
-		
-		
+		this.timer = 0;
+		this.health = 40;		
 		
 		ennemyList.push(this);
 		
@@ -65,9 +74,9 @@ window.onload = function(){
 			this.targetx = Math.random() * 600 + 500;
 			this.targety = Math.random() * 500 + 100;
 			
-			this.angle = Math.atan2(this.targetx - this.x, this.targety - this.y) + Math.PI/2;
+			
+			this.angle = Math.atan2(this.targetx-this.x,this.targety-this.y) - Math.PI/2;	
 			this.distance = Math.sqrt((this.targetx - this.x)*(this.targetx - this.x) + (this.targety - this.y)*(this.targety - this.y));
-			setTimeout(randomizeTarget,150);
 		}
 		
 		
@@ -77,81 +86,169 @@ window.onload = function(){
 		}
 		
 		this.check = function(id){
+					
 			for(i=bulletList.length-1;i>0;i--){	
 				if(collisionPointToRectangle(bulletList[i].x,bulletList[i].y,this.x,this.y,32,32)){
 					bulletList.splice(i,1);
-					ennemyList.splice(id,1);
+					this.health--;
+					if(this.health<0){
+						ennemyList.splice(id,1);
+					}
 					i=0;
 				}
 			}
 			
+			this.x += Math.cos(this.angle) * (this.distance / 150);
+			this.y -= Math.sin(this.angle) * (this.distance / 150);
 			
+			if(this.timer%150 == 0){
+				this.randomizeTarget();
+			}
 			
-		}
-		
-		this.tick = function(id){
-			this.draw();
-			this.check(id);
-		}
-	}
-	
-	function Rammer (x,y) {
-		this.x = x;
-		this.y = y;
-		
-		ennemyList.push(this);
-		
-		this.draw = function(){
-			context.fillStyle = "#FF0000";
-			context.fillRect(this.x,this.y,32,32);
-		}
-		
-		this.check = function(id){
-			for(i=bulletList.length-1;i>0;i--){	
-				if(collisionPointToRectangle(bulletList[i].x,bulletList[i].y,this.x,this.y,32,32)){
-					bulletList.splice(i,1);
-					ennemyList.splice(id,1);
-					i=0;
-				}
+			if(this.timer%14 == 0){
+				pow = new OrbVanilla(this.x,this.y,guy.x,this.y,Math.floor(Math.random()*2));
+				
 			}
-		}
-		
-		this.tick = function(id){
-			this.draw();
-			this.check(id);
-		}
-	}
-	
-	function Missiler (x,y) {
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
-		
-		ennemyList.push(this);
-		
-		this.draw = function(){
-			context.fillStyle = "#FF0000";
-			context.fillRect(this.x,this.y,32,32);
-		}
-		
-		this.check = function(id){
-			for(i=bulletList.length-1;i>0;i--){	
-				if(collisionPointToRectangle(bulletList[i].x,bulletList[i].y,this.x,this.y,32,32)){
-					bulletList.splice(i,1);
-					ennemyList.splice(id,1);
-					i=0;
-				}
+			
+			if(this.timer%40 == 0){
+				pow = new OrbWander(this.x,this.y,0);
+				pow = new OrbWander(this.x,this.y,1);
 			}
-		}
-		
-		this.tick = function(id){
-			this.draw();
-			this.check(id);
-		}
-	}
-		
 
+			
+			this.timer++;
+			
+		}
+		
+		this.tick = function(id){
+			this.draw();
+			this.check(id);
+		}
+	}
+	
+	function Aimer () {
+		this.x = 1300;
+		this.y = Math.random() * 500 + 100;
+		this.targetx = 0;
+		this.targety = 0;
+		this.angle = 0;
+		this.distance = 0;
+		this.timer = 0;
+		this.health = 40;		
+		
+		ennemyList.push(this);
+		
+		this.randomizeTarget = function(){
+			this.targetx = Math.random() * 600 + 500;
+			this.targety = Math.random() * 500 + 100;
+			
+			
+			this.angle = Math.atan2(this.targetx-this.x,this.targety-this.y) - Math.PI/2;	
+			this.distance = Math.sqrt((this.targetx - this.x)*(this.targetx - this.x) + (this.targety - this.y)*(this.targety - this.y));
+		}
+		
+		
+		this.draw = function(){
+			context.fillStyle = "#FF0000";
+			context.fillRect(this.x,this.y,32,32);
+		}
+		
+		this.check = function(id){
+					
+			for(i=bulletList.length-1;i>0;i--){	
+				if(collisionPointToRectangle(bulletList[i].x,bulletList[i].y,this.x,this.y,32,32)){
+					bulletList.splice(i,1);
+					this.health--;
+					if(this.health<0){
+						ennemyList.splice(id,1);
+					}
+					i=0;
+				}
+			}
+			
+			this.x += Math.cos(this.angle) * (this.distance / 150);
+			this.y -= Math.sin(this.angle) * (this.distance / 150);
+			
+			if(this.timer%150 == 0){
+				this.randomizeTarget();
+			}
+			
+			if(this.timer%20 == 0){
+				pow = new OrbVanilla(this.x,this.y,guy.x,guy.y,Math.floor(Math.random()*2));
+				
+			}
+			this.timer++;
+		}
+		
+		this.tick = function(id){
+			this.draw();
+			this.check(id);
+		}
+	}
+	
+	function Missiler () {
+		this.x = 1300;
+		this.y = Math.random() * 500 + 100;
+		this.targetx = 0;
+		this.targety = 0;
+		this.angle = 0;
+		this.distance = 0;
+		this.timer = 0;
+		this.health = 20;		
+		
+		ennemyList.push(this);
+		
+		this.randomizeTarget = function(){
+			this.targetx = Math.random() * 600 + 500;
+			this.targety = Math.random() * 500 + 100;
+			
+			
+			this.angle = Math.atan2(this.targetx-this.x,this.targety-this.y) - Math.PI/2;	
+			this.distance = Math.sqrt((this.targetx - this.x)*(this.targetx - this.x) + (this.targety - this.y)*(this.targety - this.y));
+		}
+		
+		
+		this.draw = function(){
+			context.fillStyle = "#FF0000";
+			context.fillRect(this.x,this.y,32,32);
+		}
+		
+		this.check = function(id){
+					
+			for(i=bulletList.length-1;i>0;i--){	
+				if(collisionPointToRectangle(bulletList[i].x,bulletList[i].y,this.x,this.y,32,32)){
+					bulletList.splice(i,1);
+					this.health--;
+					if(this.health<0){
+						ennemyList.splice(id,1);
+					}
+					i=0;
+				}
+			}
+			
+			this.x += Math.cos(this.angle) * (this.distance / 150);
+			this.y -= Math.sin(this.angle) * (this.distance / 150);
+			
+			if(this.timer%150 == 0){
+				this.randomizeTarget();
+			}
+			
+			if(this.timer%40 == 0){
+				pow = new OrbFollow(this.x,this.y,this.x + 50 ,this.y - 50,0);
+				pow = new OrbFollow(this.x,this.y,this.x + 50 ,this.y + 50,1);
+				
+			}
+			this.timer++;
+		}
+		
+		this.tick = function(id){
+			this.draw();
+			this.check(id);
+		}
+	}
+	
+
+	
 	function Weapon(){
 		
 	}
@@ -515,9 +612,9 @@ window.onload = function(){
 			this.x += this.hspeed;
 			this.y += this.vspeed;	
 			
-			if(click){
-				this.shoot();
-			}
+			
+			this.shoot();
+			
 			// this.angle = Math.atan2(mousePos.y-this.y,mousePos.x-this.x) + Math.PI/2;
 			
 			for(i=bulletList.length-1;i>0;i--){
@@ -526,6 +623,7 @@ window.onload = function(){
 					bulletList.splice(i,1);
 				}				
 			}
+			
 		}
 		
 		this.shoot = function (){
