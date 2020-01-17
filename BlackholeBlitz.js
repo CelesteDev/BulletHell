@@ -27,8 +27,102 @@ window.onload = function(){
 	var follower = new Image();
 	follower.src = "follower.png";
 
+
+	function LevelHandler(){
+		this.phase = 0;		
+		
+		ennemyList.push(this);
+		
+		this.tick = function(){
+			if(ennemyList.length <= 2){
+				this.phase++;
+				console.log(this.phase);
+				
+				switch(this.phase){
+					case 1:
+						pow = new Shooter(1400,300);
+					
+				}
+			}
+			
+			
+		}
+	}
 	
-	function Ennemy (x,y,width,height) {
+	function Shooter (x,y) {
+		this.x = x;
+		this.y = y;
+		this.targetx = 0;
+		this.targety = 0;
+		this.angle = 0;
+		this.distance = 0;
+		
+		
+		
+		ennemyList.push(this);
+		
+		this.randomizeTarget = function(){
+			this.targetx = Math.random() * 600 + 500;
+			this.targety = Math.random() * 500 + 100;
+			
+			this.angle = Math.atan2(this.targetx - this.x, this.targety - this.y) + Math.PI/2;
+			this.distance = Math.sqrt((this.targetx - this.x)*(this.targetx - this.x) + (this.targety - this.y)*(this.targety - this.y));
+			setTimeout(randomizeTarget,150);
+		}
+		
+		
+		this.draw = function(){
+			context.fillStyle = "#FF0000";
+			context.fillRect(this.x,this.y,32,32);
+		}
+		
+		this.check = function(id){
+			for(i=bulletList.length-1;i>0;i--){	
+				if(collisionPointToRectangle(bulletList[i].x,bulletList[i].y,this.x,this.y,32,32)){
+					bulletList.splice(i,1);
+					ennemyList.splice(id,1);
+					i=0;
+				}
+			}
+			
+			
+			
+		}
+		
+		this.tick = function(id){
+			this.draw();
+			this.check(id);
+		}
+	}
+	
+	function Rammer (x,y) {
+		this.x = x;
+		this.y = y;
+		
+		ennemyList.push(this);
+		
+		this.draw = function(){
+			context.fillStyle = "#FF0000";
+			context.fillRect(this.x,this.y,32,32);
+		}
+		
+		this.check = function(id){
+			for(i=bulletList.length-1;i>0;i--){	
+				if(collisionPointToRectangle(bulletList[i].x,bulletList[i].y,this.x,this.y,32,32)){
+					bulletList.splice(i,1);
+					ennemyList.splice(id,1);
+					i=0;
+				}
+			}
+		}
+		
+		this.tick = function(id){
+			this.draw();
+			this.check(id);
+		}
+	}
+	
+	function Missiler (x,y) {
 		this.x = x;
 		this.y = y;
 		this.width = width;
@@ -38,12 +132,12 @@ window.onload = function(){
 		
 		this.draw = function(){
 			context.fillStyle = "#FF0000";
-			context.fillRect(this.x,this.y,this.width,this.height);
+			context.fillRect(this.x,this.y,32,32);
 		}
 		
 		this.check = function(id){
 			for(i=bulletList.length-1;i>0;i--){	
-				if(collisionPointToRectangle(bulletList[i].x,bulletList[i].y,this.x,this.y,this.width,this.height)){
+				if(collisionPointToRectangle(bulletList[i].x,bulletList[i].y,this.x,this.y,32,32)){
 					bulletList.splice(i,1);
 					ennemyList.splice(id,1);
 					i=0;
@@ -367,7 +461,7 @@ window.onload = function(){
 		this.accelerationRate = 0.1;
 		this.deccelerationRate = 0.2;
 		this.color = 1;
-		this.angle = 0;
+		this.angle = Math.PI/2;
 		this.colorCoolDown = 0;
 		this.health = 10;
 
@@ -424,7 +518,7 @@ window.onload = function(){
 			if(click){
 				this.shoot();
 			}
-			this.angle = Math.atan2(mousePos.y-this.y,mousePos.x-this.x) + Math.PI/2;
+			// this.angle = Math.atan2(mousePos.y-this.y,mousePos.x-this.x) + Math.PI/2;
 			
 			for(i=bulletList.length-1;i>0;i--){
 				if(collisionRectangles(this.x,this.y,32,32,bulletList[i].x,bulletList[i].y,32,32) && (bulletList[i].team == 1) && (bulletList[i].color == this.color)){		
@@ -435,7 +529,7 @@ window.onload = function(){
 		}
 		
 		this.shoot = function (){
-			pow = new Bullet(this.x+16,this.y+16,mousePos.x,mousePos.y);
+			pow = new Bullet(this.x+16,this.y+16,2000,this.y);
 		}
 		
 		this.draw = function () {
@@ -498,8 +592,8 @@ window.onload = function(){
 	clavier = new Clavier();
 
 	guy = new Player();
-	meanie = new Ennemy(324,321,64,43);
-	death = new Boss(600,400,64,110,499);
+	level1 = new LevelHandler();
+	// death = new Boss(600,400,64,110,499);
 
 	
 	
